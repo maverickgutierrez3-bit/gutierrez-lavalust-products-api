@@ -51,16 +51,18 @@ class AuthController extends Controller
         $this->api->require_method('POST');
         $body = $this->api->body();
 
-        $email    = trim($body['email'] ?? '');
+        // Tinatanggap ang email o username (ang API tester ay "username" ang ipinapadala)
+        $login    = trim(($body['email'] ?? '') ?: ($body['username'] ?? ''));
         $password = $body['password'] ?? '';
 
-        if ($email === '' || $password === '') {
-            $this->api->respond_error('email and password are required', 422);
+        if ($login === '' || $password === '') {
+            $this->api->respond_error('email (or username) and password are required', 422);
         }
 
         $user = $this->db->raw(
-            "SELECT id, username, email, password, role, is_active FROM users WHERE email = ? LIMIT 1",
-            [$email]
+            "SELECT id, username, email, password, role, is_active
+             FROM users WHERE email = ? OR username = ? LIMIT 1",
+            [$login, $login]
         )->fetch(PDO::FETCH_ASSOC);
 
         if (!$user || !password_verify($password, $user['password'])) {
