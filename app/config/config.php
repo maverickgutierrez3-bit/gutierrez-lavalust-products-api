@@ -348,5 +348,6 @@ $config['csrf_cookie_name']        = 'csrf_cookie_name';
 $config['csrf_expire']             = 7200;
 $config['csrf_regenerate']         = FALSE;
 // CORS: papayagang origin (laging na-lo-load, kasama ang OPTIONS preflight)
-$config['allow_origin'] = getenv('ALLOW_ORIGIN') ?: '*';
+$origins = array_values(array_filter(array_map('trim', explode(',', getenv('ALLOW_ORIGIN') ?: '*'))));
+$config['allow_origin'] = (count($origins) === 1) ? $origins[0] : $origins;
 ?>
